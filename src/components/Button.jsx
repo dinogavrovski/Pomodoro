@@ -1,5 +1,5 @@
-function Button(props) {
-  return <button>{props.name}</button>;
+function Button({ name, onClick }) {
+  return <button onClick={onClick}>{name}</button>;
 }
 
 export default Button;
