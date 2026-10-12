@@ -4,7 +4,7 @@ import Button from "./components/Button.jsx";
 import { useState } from "react";
 
 function App() {
-  const [remainingTimeSeconds, setRemainingTimeSeconds] = useState(25 * 60);
+  const [remainingTimeSeconds, setRemainingTimeSeconds] = useState(9);
   return (
     <>
       <Timer

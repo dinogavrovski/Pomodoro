@@ -1,3 +1,5 @@
+import formatTime from "../utils/formatTime";
+
 import { useEffect } from "react";
 function Timer({ remainingTimeSeconds, setRemainingTimeSeconds }) {
   useEffect(() => {
@@ -7,7 +9,7 @@ function Timer({ remainingTimeSeconds, setRemainingTimeSeconds }) {
 
     return () => clearInterval(timer);
   }, [setRemainingTimeSeconds]);
-  return <h1>{remainingTimeSeconds}</h1>;
+  return <h1>{formatTime(remainingTimeSeconds)}</h1>;
 }
 
 export default Timer;
