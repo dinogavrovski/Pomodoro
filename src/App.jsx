@@ -2,28 +2,35 @@ import "./App.css";
 import Timer from "./components/Timer.jsx";
 import Button from "./components/Button.jsx";
 import { useState } from "react";
-
-const COUNTDOWN_START_VALUE = 25 * 60;
+import { COUNTDOWN_START_VALUE, BREAKTIME_VALUE } from "./constants.js";
 
 function App() {
-  const [remainingTimeSeconds, setRemainingTimeSeconds] = useState(
-    COUNTDOWN_START_VALUE,
-  );
-  const [isRunning, setIsRunning] = useState(false);
-  function handleResetClick() {
-    setIsRunning(false);
-    setRemainingTimeSeconds(COUNTDOWN_START_VALUE);
+  const [timer, setTimer] = useState({
+    remainingTimeSeconds: COUNTDOWN_START_VALUE,
+    isWorkTime: true,
+    isRunning: false,
+  });
+  function handleReset() {
+    setTimer({
+      remainingTimeSeconds: timer.isWorkTime
+        ? COUNTDOWN_START_VALUE
+        : BREAKTIME_VALUE,
+      isWorkTime: timer.isWorkTime,
+      isRunning: false,
+    });
   }
   return (
     <>
-      <Timer
-        remainingTimeSeconds={remainingTimeSeconds}
-        setRemainingTimeSeconds={setRemainingTimeSeconds}
-        isRunning={isRunning}
+      <Timer timer={timer} setTimer={setTimer} />
+      <Button
+        name="start"
+        onClick={() => setTimer((prev) => ({ ...prev, isRunning: true }))}
       />
-      <Button name="start" onClick={() => setIsRunning(true)} />
-      <Button name="pause" onClick={() => setIsRunning(false)} />
-      <Button name="reset" onClick={handleResetClick} />
+      <Button
+        name="pause"
+        onClick={() => setTimer((prev) => ({ ...prev, isRunning: false }))}
+      />
+      <Button name="reset" onClick={handleReset} />
     </>
   );
 }
