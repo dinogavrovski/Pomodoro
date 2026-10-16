@@ -22,7 +22,7 @@ function App() {
   }
   return (
     <>
-      <AmbientSound src="/sounds/loop_1.mp3" />
+      <AmbientSound />
       <Timer timer={timer} setTimer={setTimer} />
       <Button
         name="start"
