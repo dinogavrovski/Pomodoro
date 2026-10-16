@@ -5,7 +5,8 @@ function timeSwitch(prev) {
         return {
             remainingTimeSeconds: prev.isWorkTime ? BREAKTIME_VALUE : COUNTDOWN_START_VALUE,
             isWorkTime: !prev.isWorkTime,
-            isRunning: false
+            isRunning: false,
+            history: prev.isWorkTime ? [...prev.history, Date.now()] : [...prev.history],
         }
     }
     return { ...prev, remainingTimeSeconds: prev.remainingTimeSeconds - 1 };

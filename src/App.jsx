@@ -4,20 +4,22 @@ import Button from "./components/Button.jsx";
 import { useState } from "react";
 import { COUNTDOWN_START_VALUE, BREAKTIME_VALUE } from "./constants.js";
 import AmbientSound from "./components/AmbientSound.jsx";
+import SessionHistory from "./components/SessionHistory.jsx";
 
 function App() {
   const [timer, setTimer] = useState({
     remainingTimeSeconds: COUNTDOWN_START_VALUE,
     isWorkTime: true,
     isRunning: false,
+    history: [],
   });
   function handleReset() {
     setTimer({
+      ...timer,
+      isRunning: false,
       remainingTimeSeconds: timer.isWorkTime
         ? COUNTDOWN_START_VALUE
         : BREAKTIME_VALUE,
-      isWorkTime: timer.isWorkTime,
-      isRunning: false,
     });
   }
   return (
@@ -33,6 +35,7 @@ function App() {
         onClick={() => setTimer((prev) => ({ ...prev, isRunning: false }))}
       />
       <Button name="reset" onClick={handleReset} />
+      <SessionHistory history={timer.history} />
     </>
   );
 }
