@@ -7,7 +7,7 @@
   --frog-dark: #5c8a32;
   --orange: #ec9a42;
   --orange-dark: #b9652a;
-  --bg: #1e2b2a;
+  --bg: #1c4526;
 
   /* Accent follows the mode: green while working, orange on breaks */
   --accent: var(--frog);

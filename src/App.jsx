@@ -31,9 +31,8 @@ function App() {
   }, [timer.history]);
   return (
     <div className="app" data-mode={timer.isWorkTime ? "work" : "break"}>
-      <header className="app-header">
-        <h1 className="logo">Focus Room</h1>
-      </header>
+      {/* Not shown on screen, but screen readers and search engines still get a page title */}
+      <h1 className="visually-hidden">Focus Room</h1>
       <main className="layout">
         <SessionHistory history={timer.history} />
         <section className="stage">
