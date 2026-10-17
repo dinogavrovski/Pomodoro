@@ -1,0 +1,348 @@
+/* ---------- Page shell: exactly one screen tall on desktop ---------- */
+
+.app {
+  height: 100svh;
+  padding: 24px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow: hidden;
+}
+
+.app[data-mode="break"] {
+  --accent: var(--orange);
+  --accent-dark: var(--orange-dark);
+}
+
+.app-header {
+  text-align: center;
+}
+
+.logo {
+  font-family: var(--font-pixel);
+  font-size: 22px;
+  color: var(--paper);
+  text-shadow: 4px 4px 0 var(--accent-dark);
+  letter-spacing: 2px;
+}
+
+/* ---------- Layout: 3 columns on desktop, 1 column on phones ---------- */
+
+.layout {
+  flex: 1;
+  min-height: 0; /* lets children shrink instead of overflowing the screen */
+  display: grid;
+  gap: 32px;
+  grid-template-columns: minmax(220px, 280px) 1fr minmax(300px, 360px);
+  grid-template-areas: "history stage controls";
+  /* One row, as tall as the controls column, centered on the screen.
+     Stretch makes all three columns share that row's top and bottom. */
+  align-content: center;
+  align-items: stretch;
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.history-panel {
+  grid-area: history;
+}
+.stage {
+  grid-area: stage;
+}
+.control-column {
+  grid-area: controls;
+}
+
+/* Side columns: same padding so their headings line up, no own background */
+.card {
+  padding: 28px;
+}
+
+/* Both columns start with this heading, so their first lines line up */
+.panel-title {
+  font-family: var(--font-pixel);
+  font-size: 12px;
+  line-height: 1;
+  margin-bottom: 20px;
+}
+
+/* ---------- Buttons ---------- */
+
+.btn {
+  font-family: var(--font-pixel);
+  font-size: 11px;
+  text-transform: uppercase;
+  padding: 12px 14px;
+  color: var(--ink);
+  background: var(--paper);
+  border: var(--pixel) solid var(--ink);
+  box-shadow: 0 var(--pixel) 0 0 var(--ink);
+  cursor: pointer;
+  transition: transform 60ms;
+}
+
+.btn:hover {
+  background: var(--paper-shade);
+}
+
+/* Pressed: sink down onto the shadow */
+.btn:active {
+  transform: translateY(var(--pixel));
+  box-shadow: none;
+}
+
+.btn:focus-visible {
+  outline: var(--pixel) dashed var(--accent);
+  outline-offset: 3px;
+}
+
+.btn-primary {
+  background: var(--accent);
+}
+
+.btn-primary:hover {
+  background: var(--accent-dark);
+  color: var(--paper);
+}
+
+/* ---------- Session history (left) ---------- */
+
+.history-panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  /* Don't let a long history make the row taller: size to the row, scroll inside */
+  contain: size;
+}
+
+.history-list {
+  list-style: none;
+  padding: 0;
+  overflow-y: auto; /* the list scrolls, not the page */
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.history-list li {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  padding-left: 12px;
+  border-left: var(--pixel) solid var(--frog);
+}
+
+.history-list li::before {
+  content: "✓";
+  color: var(--frog);
+}
+
+.history-time {
+  margin-left: auto;
+  opacity: 0.7;
+}
+
+/* ---------- Character (middle) ---------- */
+
+.stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+}
+
+.character {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.character-sprite {
+  display: block;
+  width: clamp(160px, 34vh, 320px);
+  aspect-ratio: 1;
+}
+
+.speech-bubble {
+  position: relative;
+  font-family: var(--font-pixel);
+  font-size: 11px;
+  white-space: nowrap;
+  padding: 10px 12px;
+  color: var(--ink);
+  background: var(--paper);
+}
+
+.speech-bubble::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -6px;
+  width: 12px;
+  height: 12px;
+  translate: -50% 0;
+  background: var(--paper);
+  rotate: 45deg;
+}
+
+/* ---------- Right column: music, timer, volume, buttons ---------- */
+
+.control-column {
+  display: grid;
+  gap: 24px;
+  align-content: start;
+  justify-items: center;
+  min-height: 0;
+  /* AmbientSound renders two pieces; grid areas put them above and below the timer */
+  grid-template-areas:
+    "music"
+    "timer"
+    "volume"
+    "controls";
+}
+
+.music-player {
+  grid-area: music;
+  width: 100%;
+  text-align: center;
+}
+
+.now-playing {
+  margin-bottom: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.music-buttons,
+.timer-controls {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.timer {
+  grid-area: timer;
+}
+
+/* The ring empties as the session runs down (--progress is set from React) */
+.timer-ring {
+  width: clamp(200px, 30vh, 280px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: conic-gradient(
+    var(--accent) calc(var(--progress) * 360deg),
+    rgba(255, 255, 255, 0.12) 0
+  );
+  display: grid;
+  place-items: center;
+}
+
+.timer-face {
+  width: 84%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--bg);
+  display: grid;
+  place-content: center;
+  gap: 12px;
+  text-align: center;
+}
+
+.timer-mode {
+  font-family: var(--font-pixel);
+  font-size: 10px;
+  color: var(--accent);
+  text-transform: uppercase;
+}
+
+.timer-digits {
+  font-family: var(--font-pixel);
+  font-size: clamp(26px, 4vh, 38px);
+}
+
+.volume {
+  grid-area: volume;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.volume label {
+  font-family: var(--font-pixel);
+  font-size: 10px;
+}
+
+.volume-value {
+  min-width: 3.5ch;
+  text-align: right;
+}
+
+.timer-controls {
+  grid-area: controls;
+}
+
+/* ---------- Pixel range slider ---------- */
+
+.volume input[type="range"] {
+  flex: 1;
+  appearance: none;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+}
+
+.volume input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  width: 14px;
+  height: 22px;
+  background: var(--accent);
+  border: var(--pixel) solid var(--ink);
+}
+
+.volume input[type="range"]::-moz-range-thumb {
+  width: 14px;
+  height: 22px;
+  border-radius: 0;
+  background: var(--accent);
+  border: var(--pixel) solid var(--ink);
+}
+
+/* ---------- Phones and narrow screens: stack everything, page may scroll ---------- */
+
+@media (max-width: 900px) {
+  .app {
+    height: auto;
+    min-height: 100svh;
+    overflow: visible;
+    padding: 16px;
+  }
+
+  .layout {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "stage"
+      "controls"
+      "history";
+  }
+
+  .history-panel {
+    contain: none;
+  }
+
+  .character-sprite {
+    width: 160px;
+  }
+
+  .timer-ring {
+    width: min(260px, 72vw);
+  }
+
+  .history-list {
+    max-height: 240px;
+  }
+}

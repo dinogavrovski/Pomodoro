@@ -1,5 +1,6 @@
 import formatTime from "../utils/formatTime";
 import timeSwitch from "../utils/timeSwitch";
+import { COUNTDOWN_START_VALUE, BREAKTIME_VALUE } from "../constants.js";
 
 import { useEffect } from "react";
 function Timer({ timer, setTimer }) {
@@ -13,10 +14,25 @@ function Timer({ timer, setTimer }) {
 
     return () => clearInterval(intervalId);
   }, [setTimer, timer.isRunning]);
+
+  // Derived values for the progress ring: 1 = full, 0 = empty
+  const sessionDuration = timer.isWorkTime
+    ? COUNTDOWN_START_VALUE
+    : BREAKTIME_VALUE;
+  const progress = timer.remainingTimeSeconds / sessionDuration;
+
   return (
-    <div>
-      <h3>{timer.isWorkTime ? "Work Time" : "Break Time"}</h3>
-      <h1>{formatTime(timer.remainingTimeSeconds)}</h1>
+    <div className="timer" style={{ "--progress": progress }}>
+      <div className="timer-ring">
+        <div className="timer-face">
+          <p className="timer-mode">
+            {timer.isWorkTime ? "Work Time" : "Break Time"}
+          </p>
+          <p className="timer-digits" role="timer">
+            {formatTime(timer.remainingTimeSeconds)}
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

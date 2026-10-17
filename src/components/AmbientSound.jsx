@@ -36,25 +36,40 @@ function AmbientSound() {
     }
   }, [index, isPlaying]);
 
+  // A fragment, so the player and the volume bar become separate grid items
+  // in the right column (CSS places one above the timer, one below)
   return (
-    <div>
-      <Button name={isPlaying ? "Pause" : "Play"} onClick={handleClick} />
-      <h3>Now Playing: {nowPlaying}</h3>
-      <input
-        type="range"
-        min="0"
-        max="1"
-        step="0.01"
-        value={volumeLevel}
-        onChange={(e) => {
-          setVolumeLevel(Number(e.target.value));
-        }}
-      />
-      <Button name="Previous" onClick={handlePrevious} />
-      <Button name="Next" onClick={handleNext} />
-      <p>Volume: {Math.round(volumeLevel * 100)}%</p>
+    <>
+      <div className="music-player">
+        <h2 className="panel-title">Now Playing</h2>
+        <p className="now-playing">♪ {nowPlaying}</p>
+        <div className="music-buttons">
+          <Button name="Prev" onClick={handlePrevious} />
+          <Button
+            className="btn btn-primary"
+            name={isPlaying ? "Pause" : "Play"}
+            onClick={handleClick}
+          />
+          <Button name="Next" onClick={handleNext} />
+        </div>
+      </div>
+      <div className="volume">
+        <label htmlFor="volume">VOL</label>
+        <input
+          id="volume"
+          type="range"
+          min="0"
+          max="1"
+          step="0.01"
+          value={volumeLevel}
+          onChange={(e) => {
+            setVolumeLevel(Number(e.target.value));
+          }}
+        />
+        <span className="volume-value">{Math.round(volumeLevel * 100)}%</span>
+      </div>
       <audio loop ref={audioRef} src={sound} />
-    </div>
+    </>
   );
 }
 
