@@ -171,26 +171,89 @@
   aspect-ratio: 1;
 }
 
+/* Pixel speech bubble.
+   ::before = the bubble body (stepped pixel corners),
+   ::after  = the stepped tail.
+   The drop-shadow filters on the parent draw one black outline around both. */
 .speech-bubble {
+  --bubble-fill: #eaefd9;
+  --bubble-outline: 3px;
+
   position: relative;
   font-family: var(--font-pixel);
   font-size: 11px;
   white-space: nowrap;
-  padding: 10px 12px;
+  padding: 14px 18px 16px;
+  margin-bottom: 14px; /* room for the tail */
   color: var(--ink);
-  background: var(--paper);
+  filter: drop-shadow(var(--bubble-outline) 0 0 #000)
+    drop-shadow(calc(var(--bubble-outline) * -1) 0 0 #000)
+    drop-shadow(0 var(--bubble-outline) 0 #000)
+    drop-shadow(0 calc(var(--bubble-outline) * -1) 0 #000);
 }
 
+.speech-bubble::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1; /* behind the text */
+  background: var(--bubble-fill);
+  /* rounded corners made of 4px steps */
+  clip-path: polygon(
+    12px 0,
+    calc(100% - 12px) 0,
+    calc(100% - 12px) 4px,
+    calc(100% - 8px) 4px,
+    calc(100% - 8px) 8px,
+    calc(100% - 4px) 8px,
+    calc(100% - 4px) 12px,
+    100% 12px,
+    100% calc(100% - 12px),
+    calc(100% - 4px) calc(100% - 12px),
+    calc(100% - 4px) calc(100% - 8px),
+    calc(100% - 8px) calc(100% - 8px),
+    calc(100% - 8px) calc(100% - 4px),
+    calc(100% - 12px) calc(100% - 4px),
+    calc(100% - 12px) 100%,
+    12px 100%,
+    12px calc(100% - 4px),
+    8px calc(100% - 4px),
+    8px calc(100% - 8px),
+    4px calc(100% - 8px),
+    4px calc(100% - 12px),
+    0 calc(100% - 12px),
+    0 12px,
+    4px 12px,
+    4px 8px,
+    8px 8px,
+    8px 4px,
+    12px 4px
+  );
+}
+
+/* Stepped tail: straight left edge, staircase on the right */
 .speech-bubble::after {
   content: "";
   position: absolute;
   left: 50%;
-  bottom: -6px;
-  width: 12px;
-  height: 12px;
+  top: calc(100% - 4px); /* overlaps the body so the outline joins up */
+  width: 16px;
+  height: 16px;
   translate: -50% 0;
-  background: var(--paper);
-  rotate: 45deg;
+  z-index: -1;
+  background: var(--bubble-fill);
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% 4px,
+    75% 4px,
+    75% 8px,
+    50% 8px,
+    50% 12px,
+    25% 12px,
+    25% 100%,
+    0 100%
+  );
 }
 
 /* ---------- Right column: music, timer, volume, buttons ---------- */
@@ -283,8 +346,10 @@
 /* The ring empties as the session runs down (--progress is set from React).
    It grows with the screen height, but never wider than its column. */
 .timer-ring {
-  /* As big as the free space allows in BOTH directions, capped at 420px */
-  width: min(100cqw, 100cqh, 400px);
+  /* As big as the free space allows in BOTH directions, capped at 400px.
+     Stored in a variable so the digits inside can scale with it. */
+  --ring-size: min(100cqw, 100cqh, 400px);
+  width: var(--ring-size);
   aspect-ratio: 1;
   border-radius: 50%;
   background: conic-gradient(
@@ -315,7 +380,9 @@
 
 .timer-digits {
   font-family: var(--font-pixel);
-  font-size: clamp(18px, 12cqmin, 46px); /* scales with the ring */
+  /* "25:00" is 5 characters, each about 1em wide in this font.
+     11% of the ring keeps it well inside the circle at any size. */
+  font-size: calc(var(--ring-size) * 0.11);
 }
 
 .volume {
@@ -394,58 +461,71 @@
   }
 
   .layout {
-    grid-template-columns: 1fr;
+    grid-template-columns: auto 1fr;
     grid-template-rows: none;
-    gap: 16px;
+    column-gap: 16px;
+    row-gap: 14px;
     align-content: center; /* extra height goes above/below, not between rows */
     padding-top: 40px; /* room for the History button */
-    /* Frog on top, timer in the middle, music at the bottom */
+    /* Timer on top; frog on the left of the two button rows; music at the bottom */
     grid-template-areas:
-      "character"
-      "controls"
-      "music"
-      "volume";
+      "timer timer"
+      "character durations"
+      "character controls"
+      "music music"
+      "volume volume";
   }
 
-  /* The stage box disappears, so the frog, player and volume
-     become items of the page grid above and can be placed separately */
-  .stage {
+  /* The stage and control-column boxes disappear, so the frog, player, volume,
+     timer and button rows all become items of the page grid above */
+  .stage,
+  .control-column {
     display: contents;
   }
 
-  .character {
-    gap: 10px;
-  }
-
-  .character-sprite {
-    width: 128px; /* exactly 2x the 64px sprite, so pixels stay crisp */
-  }
-
-  .control-column {
-    padding: 0;
-    gap: 12px;
-    grid-template-rows: none;
-  }
-
-  /* Stacked layout has no fixed row height to measure, so use fixed sizes */
   .timer {
-    container-type: normal;
+    container-type: normal; /* stacked layout: no fixed slot to measure */
+    height: auto;
+    margin-bottom: 52px; /* room for the speech bubble above the frog */
   }
 
   .timer-ring {
-    width: min(240px, 64vw, 34svh);
+    --ring-size: min(240px, 64vw, 30svh); /* digits follow automatically */
   }
 
-  .timer-digits {
-    font-size: 30px;
+  /* Frog spans both button rows; the bubble floats above it */
+  .character {
+    position: relative;
+    align-self: center;
   }
 
-  .duration-controls {
+  .character-sprite {
+    width: 96px; /* matches the height of the two button rows */
+  }
+
+  .speech-bubble {
+    position: absolute;
+    bottom: calc(100% + 14px);
+    left: 50%;
+    translate: -50% 0;
+    margin: 0;
+    font-size: 8px;
+    padding: 10px 12px 12px;
+  }
+
+  /* Button rows: three equal columns that fill the space next to the frog */
+  .duration-controls,
+  .timer-controls {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
     gap: 8px;
+    width: 100%;
   }
 
-  .duration-controls .btn {
-    padding: 8px 9px;
+  .duration-controls .btn,
+  .timer-controls .btn {
+    font-size: 9px;
+    padding: 10px 4px;
   }
 
   /* Compact one-row music bar: track name left, buttons right */
@@ -529,13 +609,5 @@
     inset: 0;
     z-index: 15;
     background: rgba(0, 0, 0, 0.5);
-  }
-}
-
-/* Short phones (e.g. iPhone SE): a smaller frog so everything still fits.
-   Comes last so it overrides the 128px from the block above. */
-@media (max-width: 900px) and (max-height: 700px) {
-  .character-sprite {
-    width: 96px;
   }
 }
