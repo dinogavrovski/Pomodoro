@@ -1,5 +1,6 @@
 import { useRef, useState, useEffect } from "react";
 import Button from "./Button.jsx";
+import PixelIcon from "./PixelIcon.jsx";
 import { SOUND_FILES } from "../constants.js";
 
 function AmbientSound() {
@@ -41,16 +42,29 @@ function AmbientSound() {
   return (
     <>
       <div className="music-player">
-        <h2 className="panel-title">Now Playing</h2>
-        <p className="now-playing">♪ {nowPlaying}</p>
+        <p className="now-playing">
+          <span className="now-playing-label">Now Playing:</span>
+          <span className="now-playing-track">♪ {nowPlaying}</span>
+        </p>
         <div className="music-buttons">
-          <Button name="Prev" onClick={handlePrevious} />
           <Button
-            className="btn btn-primary"
-            name={isPlaying ? "Pause" : "Play"}
+            className="btn btn-icon"
+            name={<PixelIcon name="prev" />}
+            label="Previous track"
+            onClick={handlePrevious}
+          />
+          <Button
+            className="btn btn-icon btn-primary"
+            name={<PixelIcon name={isPlaying ? "pause" : "play"} />}
+            label={isPlaying ? "Pause music" : "Play music"}
             onClick={handleClick}
           />
-          <Button name="Next" onClick={handleNext} />
+          <Button
+            className="btn btn-icon"
+            name={<PixelIcon name="next" />}
+            label="Next track"
+            onClick={handleNext}
+          />
         </div>
       </div>
       <div className="volume">

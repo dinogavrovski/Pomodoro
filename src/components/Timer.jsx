@@ -1,6 +1,6 @@
 import formatTime from "../utils/formatTime";
 import timeSwitch from "../utils/timeSwitch";
-import { COUNTDOWN_START_VALUE, BREAKTIME_VALUE } from "../constants.js";
+import { BREAKTIME_VALUE } from "../constants.js";
 
 import { useEffect } from "react";
 function Timer({ timer, setTimer }) {
@@ -17,7 +17,7 @@ function Timer({ timer, setTimer }) {
 
   // Derived values for the progress ring: 1 = full, 0 = empty
   const sessionDuration = timer.isWorkTime
-    ? COUNTDOWN_START_VALUE
+    ? timer.workMinutes * 60
     : BREAKTIME_VALUE;
   const progress = timer.remainingTimeSeconds / sessionDuration;
 

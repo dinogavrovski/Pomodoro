@@ -2,7 +2,7 @@
 
 A cozy pixel-art Pomodoro timer with a lofi music player. A little frog keeps you company: it naps while the timer is stopped and runs alongside you during work sessions.
 
-**Live demo:** _coming soon_ <!-- TODO: add the Vercel/Netlify link after deploying -->
+**Live demo:** [pomodoro-alpha-beige.vercel.app](https://pomodoro-alpha-beige.vercel.app)
 
 <!-- TODO: add a screenshot, e.g. save one as docs/screenshot.png and uncomment the line below -->
 <!-- ![Focus Room screenshot](docs/screenshot.png) -->

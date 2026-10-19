@@ -1,12 +1,13 @@
-import { COUNTDOWN_START_VALUE, BREAKTIME_VALUE } from "../constants.js";
+import { BREAKTIME_VALUE } from "../constants.js";
 
 function timeSwitch(prev) {
     if (prev.remainingTimeSeconds === 1) {
         return {
-            remainingTimeSeconds: prev.isWorkTime ? BREAKTIME_VALUE : COUNTDOWN_START_VALUE,
             isWorkTime: !prev.isWorkTime,
             isRunning: false,
-            history: prev.isWorkTime ? [...prev.history, Date.now()] : [...prev.history],
+            history: prev.isWorkTime ? [...prev.history, { finishedAt: Date.now(), minutes: prev.workMinutes }] : [...prev.history],
+            workMinutes: prev.workMinutes,
+            remainingTimeSeconds: prev.isWorkTime ? BREAKTIME_VALUE : prev.workMinutes * 60,
         }
     }
     return { ...prev, remainingTimeSeconds: prev.remainingTimeSeconds - 1 };

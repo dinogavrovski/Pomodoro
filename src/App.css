@@ -30,7 +30,8 @@
   min-height: 0; /* lets children shrink instead of overflowing the screen */
   display: grid;
   gap: 32px;
-  grid-template-columns: minmax(240px, 300px) 1fr minmax(300px, 380px);
+  /* Equal side columns keep the middle column (the frog) centered on the screen */
+  grid-template-columns: minmax(260px, 420px) 1fr minmax(260px, 420px);
   grid-template-rows: minmax(0, 1fr); /* one row, the full screen height */
   grid-template-areas: "history stage controls";
   align-items: stretch; /* every column runs from top to bottom */
@@ -140,14 +141,24 @@
 
 /* ---------- Character (middle) ---------- */
 
+/* Middle column: frog in the free space, music player pinned to the bottom.
+   Same top/bottom padding as the cards, so the bottoms line up across columns. */
 .stage {
-  display: flex;
+  display: grid;
+  grid-template-areas:
+    "character"
+    "music"
+    "volume";
+  grid-template-rows: minmax(0, 1fr) auto auto;
+  justify-items: center;
   align-items: center;
-  justify-content: center;
+  gap: 20px;
+  padding: 28px 0;
   min-height: 0;
 }
 
 .character {
+  grid-area: character;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -156,7 +167,7 @@
 
 .character-sprite {
   display: block;
-  width: clamp(160px, 40vh, 384px);
+  width: clamp(128px, 36vh, 384px);
   aspect-ratio: 1;
 }
 
@@ -189,35 +200,73 @@
   gap: 24px;
   justify-items: center;
   min-height: 0;
-  /* AmbientSound renders two pieces; grid areas put them above and below the timer.
-     The timer row takes all the leftover height, so the column fills the screen. */
+  /* The timer row takes all the leftover height, so the ring can be as big as possible */
   grid-template-areas:
-    "music"
     "timer"
-    "volume"
+    "durations"
     "controls";
-  grid-template-rows: auto minmax(0, 1fr) auto auto;
+  grid-template-rows: minmax(0, 1fr) auto auto;
 }
 
 .music-player {
   grid-area: music;
-  width: 100%;
+  width: min(100%, 420px);
   text-align: center;
 }
 
+/* "NOW PLAYING: ♪ loop_1.mp3" on one line */
 .now-playing {
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  gap: 10px;
   margin-bottom: 14px;
-  overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
+.now-playing-label {
+  font-family: var(--font-pixel);
+  font-size: 12px;
+}
+
+.now-playing-track {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .music-buttons,
+.duration-controls,
 .timer-controls {
   display: flex;
   gap: 10px;
   justify-content: center;
   flex-wrap: wrap;
+}
+
+/* Icon-only buttons: same chunky look, centered pixel icon */
+.btn-icon {
+  display: inline-grid;
+  place-items: center;
+  min-width: 52px;
+  padding: 10px 16px;
+}
+
+.pixel-icon {
+  display: block;
+}
+
+/* Work-length picker: smaller buttons with a "min" suffix */
+.duration-controls {
+  grid-area: durations;
+}
+
+.duration-controls .btn {
+  font-size: 10px;
+  padding: 8px 12px;
+}
+
+.duration-controls .btn::after {
+  content: " min";
 }
 
 .timer {
@@ -235,7 +284,7 @@
    It grows with the screen height, but never wider than its column. */
 .timer-ring {
   /* As big as the free space allows in BOTH directions, capped at 420px */
-  width: min(100cqw, 100cqh, 420px);
+  width: min(100cqw, 100cqh, 400px);
   aspect-ratio: 1;
   border-radius: 50%;
   background: conic-gradient(
@@ -271,7 +320,7 @@
 
 .volume {
   grid-area: volume;
-  width: 100%;
+  width: min(100%, 420px);
   display: flex;
   align-items: center;
   gap: 12px;
@@ -319,8 +368,25 @@
 
 /* ---------- Phones and narrow screens: stack everything, page may scroll ---------- */
 
+/* ---------- History panel extras (only used on phones) ---------- */
+
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.history-toggle,
+.history-close,
+.history-backdrop {
+  display: none;
+}
+
+/* ---------- Phones and narrow screens: one screen, history in a slide-up panel ---------- */
+
 @media (max-width: 900px) {
   .app {
+    position: relative;
     height: auto;
     min-height: 100svh;
     overflow: visible;
@@ -330,21 +396,34 @@
   .layout {
     grid-template-columns: 1fr;
     grid-template-rows: none;
+    gap: 16px;
+    align-content: center; /* extra height goes above/below, not between rows */
+    padding-top: 40px; /* room for the History button */
+    /* Frog on top, timer in the middle, music at the bottom */
     grid-template-areas:
-      "stage"
+      "character"
       "controls"
-      "history";
+      "music"
+      "volume";
   }
 
-  .history-panel {
-    contain: none;
+  /* The stage box disappears, so the frog, player and volume
+     become items of the page grid above and can be placed separately */
+  .stage {
+    display: contents;
+  }
+
+  .character {
+    gap: 10px;
   }
 
   .character-sprite {
-    width: 160px;
+    width: 128px; /* exactly 2x the 64px sprite, so pixels stay crisp */
   }
 
   .control-column {
+    padding: 0;
+    gap: 12px;
     grid-template-rows: none;
   }
 
@@ -354,14 +433,109 @@
   }
 
   .timer-ring {
-    width: min(260px, 72vw);
+    width: min(240px, 64vw, 34svh);
   }
 
   .timer-digits {
-    font-size: 34px;
+    font-size: 30px;
   }
 
-  .history-list {
-    max-height: 240px;
+  .duration-controls {
+    gap: 8px;
+  }
+
+  .duration-controls .btn {
+    padding: 8px 9px;
+  }
+
+  /* Compact one-row music bar: track name left, buttons right */
+  .music-player {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .now-playing {
+    margin: 0;
+    min-width: 0;
+    justify-content: flex-start;
+  }
+
+  .now-playing-label {
+    display: none;
+  }
+
+  .music-buttons {
+    flex-wrap: nowrap;
+  }
+
+  .btn-icon {
+    min-width: 44px;
+    padding: 8px 12px;
+  }
+
+  .volume {
+    width: 100%;
+  }
+
+  /* "History" button in the top-right corner */
+  .history-toggle {
+    display: block;
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    z-index: 5;
+    font-size: 9px;
+    padding: 8px 10px;
+  }
+
+  /* The history panel slides up from the bottom edge */
+  .history-panel {
+    grid-area: auto;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 20;
+    max-height: 70svh;
+    padding: 24px 20px 32px;
+    background: var(--bg);
+    border-top: var(--pixel) solid var(--accent);
+    box-shadow: 0 -8px 0 rgba(0, 0, 0, 0.25);
+    contain: none;
+    transform: translateY(100%);
+    visibility: hidden; /* also hides it from keyboard and screen readers while closed */
+    transition:
+      transform 200ms ease,
+      visibility 200ms;
+  }
+
+  .history-panel.is-open {
+    transform: translateY(0);
+    visibility: visible;
+  }
+
+  .history-close {
+    display: inline-grid;
+    font-size: 12px;
+  }
+
+  /* Dark layer behind the open panel; tapping it closes the panel */
+  .history-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 15;
+    background: rgba(0, 0, 0, 0.5);
+  }
+}
+
+/* Short phones (e.g. iPhone SE): a smaller frog so everything still fits.
+   Comes last so it overrides the 128px from the block above. */
+@media (max-width: 900px) and (max-height: 700px) {
+  .character-sprite {
+    width: 96px;
   }
 }
